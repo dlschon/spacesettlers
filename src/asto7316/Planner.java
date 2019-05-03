@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import asto7316.Astar.AStarSearch;
+import asto7316.Astar.SearchResult;
 import asto7316.Goals.AbstractGoal;
 import asto7316.Goals.BaseGoal;
 import asto7316.Goals.EnergyGoal;
@@ -68,7 +70,8 @@ public class Planner {
 	int getCurrentGoal(Toroidal2DPhysics space, Ship ship)
 	{
 		// Energy goal is top priority cause it lets us live
-		if (!goalMet(space, ship, GOAL_ID_ENERGY))
+		// If we're really close to a target then go ahead and get that first though
+		if (!goalMet(space, ship, GOAL_ID_ENERGY) && space.findShortestDistance(ship.getPosition(), target.getPosition()) > 200)
 			return GOAL_ID_ENERGY;
 		
 		// Next subgoal: go to base if we have something to bring back
@@ -164,9 +167,17 @@ public class Planner {
 		double shortest = Double.MAX_VALUE;
 		double distance;
 		target = null;
+		AStarSearch myAstar = new AStarSearch();
+
 		for (AbstractPlanAction apa : available)
 		{
-			distance = apa.distanceToTarget(space, ship);
+			distance = space.findShortestDistance(apa.getTarget().getPosition(), ship.getPosition());
+			
+			// Penalize targets on the other side of the big fence
+			if (apa.getTarget().getPosition().getX() < space.getWidth() / 2 && ship.getPosition().getX() > space.getWidth() / 2
+					|| apa.getTarget().getPosition().getX() > space.getWidth() / 2 && ship.getPosition().getX() < space.getWidth() / 2)
+				distance += 250;
+
 			if (distance < shortest)
 			{
 				shortest = distance;

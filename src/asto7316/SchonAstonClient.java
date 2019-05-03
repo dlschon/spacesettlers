@@ -1,30 +1,18 @@
 package asto7316;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-import javafx.scene.paint.Color;
-
-import java.util.PriorityQueue;
-
-import asto7316.CustomMove;
 import asto7316.Astar.AStarSearch;
+import asto7316.Astar.SearchResult;
 import spacesettlers.actions.AbstractAction;
 import spacesettlers.actions.DoNothingAction;
-import spacesettlers.actions.MoveAction;
-import spacesettlers.actions.MoveToObjectAction;
 import spacesettlers.actions.PurchaseCosts;
 import spacesettlers.actions.PurchaseTypes;
 import spacesettlers.clients.TeamClient;
-import spacesettlers.graphics.CircleGraphics;
-import spacesettlers.graphics.LineGraphics;
 import spacesettlers.graphics.SpacewarGraphics;
 import spacesettlers.objects.AbstractActionableObject;
 import spacesettlers.objects.AbstractObject;
@@ -35,7 +23,6 @@ import spacesettlers.objects.Beacon;
 import spacesettlers.objects.Ship;
 import spacesettlers.objects.powerups.SpaceSettlersPowerupEnum;
 import spacesettlers.objects.resources.ResourcePile;
-import spacesettlers.objects.weapons.AbstractWeapon;
 import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 import spacesettlers.utilities.Vector2D;
@@ -126,7 +113,7 @@ public class SchonAstonClient extends TeamClient {
 		else
 			search = searches.get(ship.getId());
 
-		AStarSearch.SearchResult results = search.search(space, ship, target);
+		SearchResult results = search.search(space, ship, target);
 		
 		if (results != null)
 		{

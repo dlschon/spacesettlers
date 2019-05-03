@@ -58,7 +58,7 @@ public class AStarSearch
 			grid[x] = new Node[h];
 			while (y < h)
 			{
-				grid[x][y] = new Node(x*GRID_SIZE, y*GRID_SIZE, 0, null);
+				grid[x][y] = new Node(x*GRID_SIZE, y*GRID_SIZE, 0, null, space);
 				double dist = space.findShortestDistance(grid[x][y], ship.getPosition());
 				if (dist < smallestShipDistance)
 				{
@@ -219,94 +219,6 @@ public class AStarSearch
 	{
 		// Return euclidean distance between point and target position
 		return space.findShortestDistance(pos, target.getPosition());
-	}
-	
-	// A node in the A* search tree
-	class Node extends Position
-	{
-		public double pathLength;
-		public Node parent;
-		public boolean isGoal = false;
-		public boolean explored = false;
-		
-		public Node(double x, double y, double pathLength, Node parent)
-		{
-			super(x,y);
-			this.pathLength = pathLength;
-			this.parent = parent;
-		}
-		
-		public Node(Position pos, double pathLength, Node parent)
-		{
-			super(pos.getX(), pos.getY());
-			this.pathLength = pathLength;
-			this.parent = parent;
-		}
-		
-		// Trace the path back to its root
-		// Returns the result object for the search
-		public SearchResult traceBack()
-		{
-			SearchResult res = new SearchResult(new Vector2D(this), new Vector2D(this));
-			if (this.parent  == null)
-			{
-				return new SearchResult(new Vector2D(this), new Vector2D(this));
-			}
-			
-			// Remember two nodes in the past because Search Result object need a target and next target
-			Node current = this;
-			Node previous = null;
-			Node prev2 = null;
-			
-			// Will loop until it gets to the root node, which has parent=null
-			while(current != null)
-			{
-				if (current.parent == null)
-				{
-					// Current is the root node
-					res.targetPos = new Vector2D(previous);
-					res.nextTarget = prev2 == null ? null : new Vector2D(prev2);
-					return res;
-				}
-				else
-				{
-					// Add line to graphical path
-					if (previous != null)	// Not a leaf node 
-					{
-						// Don't draw if the line would wrap the screen
-						if (!(Math.abs((previous.getX() - current.getX())/GRID_SIZE) > 1)
-								&& !(Math.abs((previous.getY() - current.getY())/GRID_SIZE) > 1))
-						{
-							// Draw from parent to child node
-							res.graphics.add(new LineGraphics(previous, current, new Vector2D(current).subtract(new Vector2D(previous))));
-						}
-					}
-					// Trace back a level in the tree
-					prev2 = previous;
-					previous = current;
-					current = current.parent;
-				}
-			}
-			
-			return res;
-		}
-		
-	}
-	
-	// Returned by search method
-	// Stores 2 nodes so we can set the ideal target velocity
-	public static class SearchResult
-	{
-		public Vector2D targetPos;
-		public Vector2D nextTarget;
-		public Set<SpacewarGraphics> graphics;
-		
-		public SearchResult(Vector2D targetPos, Vector2D targetVeloc)
-		{
-			this.targetPos = targetPos;
-			this.nextTarget = targetVeloc;
-			this.graphics = new HashSet<SpacewarGraphics>();
-		}
 	}
 	
 	// Compares two nodes by astar score
