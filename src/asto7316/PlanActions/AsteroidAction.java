@@ -1,8 +1,20 @@
-package asto7316;
+package asto7316.PlanActions;
 
+import asto7316.Planner;
 import spacesettlers.objects.AbstractObject;
+import spacesettlers.objects.Asteroid;
+import spacesettlers.objects.Ship;
+import spacesettlers.simulator.Toroidal2DPhysics;
 
 public class AsteroidAction extends AbstractPlanAction {
+
+	Asteroid asteroid;
+
+	public AsteroidAction(Toroidal2DPhysics space, Ship ship, Asteroid asteroid) 
+	{
+		super(space, ship);
+		this.asteroid = asteroid;
+	}
 
 	@Override
 	public boolean arePreconditionsMet() {
@@ -11,9 +23,8 @@ public class AsteroidAction extends AbstractPlanAction {
 	}
 
 	@Override
-	public boolean satisfied() {
-		// TODO Auto-generated method stub
-		return false;
+	public int satisfies() {
+		return Planner.GOAL_ID_RESOURCES;
 	}
 
 	@Override

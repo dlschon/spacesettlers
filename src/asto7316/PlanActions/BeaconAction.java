@@ -1,26 +1,29 @@
-package asto7316;
+package asto7316.PlanActions;
 
+import asto7316.Planner;
 import spacesettlers.objects.AbstractObject;
-
-import spacesettlers.objects.Base;
+import spacesettlers.objects.Beacon;
 import spacesettlers.objects.Ship;
-import spacesettlers.objects.Flag;
 import spacesettlers.simulator.Toroidal2DPhysics;
-import spacesettlers.objects.AbstractObject;
 
-public class BaseAction extends AbstractPlanAction {
+public class BeaconAction extends AbstractPlanAction {
+
+	Beacon beacon;
+	
+	public BeaconAction(Toroidal2DPhysics space, Ship ship, Beacon beacon) {
+		super(space, ship);
+		this.beacon = beacon;
+	}
 
 	@Override
 	public boolean arePreconditionsMet() {
 		// TODO Auto-generated method stub
-		
 		return false;
 	}
 
 	@Override
-	public boolean satisfied() {
-		// TODO Auto-generated method stub
-		return false;
+	public int satisfies() {
+		return Planner.GOAL_ID_ENERGY;
 	}
 
 	@Override

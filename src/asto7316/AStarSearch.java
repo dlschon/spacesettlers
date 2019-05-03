@@ -23,7 +23,7 @@ public class AStarSearch
 	// Constants for taking sample points
 	final int GRID_SIZE = 16;
 	// Step interval to replan A*
-	final int REPLAN_STEPS = 20;
+	final int REPLAN_STEPS = 2;
 	int stepCount = -1;
 	SearchResult result;
 	
