@@ -5,6 +5,11 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 
 public abstract class AbstractGoal {
 
+	// Fields
+	
+	Toroidal2DPhysics space;
+	Ship ship;
+
 	// Methods 
 
 	public AbstractGoal(Toroidal2DPhysics space, Ship ship)
@@ -13,14 +18,10 @@ public abstract class AbstractGoal {
 		this.ship = ship;
 	}
 
-	public abstract boolean isGoalMet(Ship ship, Toroidal2DPhysics space);
+	public abstract boolean isGoalMet();
 	
 	public abstract int goalID();
 	
-	// Fields
-	
-	Toroidal2DPhysics space;
-	Ship ship;
 	
 }
 

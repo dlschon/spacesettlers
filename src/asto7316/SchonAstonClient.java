@@ -56,6 +56,7 @@ public class SchonAstonClient extends TeamClient {
 	boolean fired = false;
 	HashMap<UUID, Set<SpacewarGraphics>> astargraphics;
 	HashMap<UUID, AStarSearch> searches;
+	HashMap<UUID, Planner> planners;
 	
 	double weaponsProbability = 1;
 	
@@ -68,12 +69,22 @@ public class SchonAstonClient extends TeamClient {
 		// Clear out the astar graphics
 		astargraphics.clear();
 
+		Planner planner;
 		// loop through each ship
 		for (AbstractObject actionable :  actionableObjects) {
 			if (actionable instanceof Ship) {
 				Ship ship = (Ship) actionable;
 
 				AbstractAction action;
+
+				// Create the Planner if it doesn't yet exist
+				if (planners.containsKey(ship.getId()))
+				{
+					planner = new Planner(space, ship);
+					planners.put(ship.getId(), planner);
+				}
+				else
+					planner = planners.get(ship.getId());
 
 				// get the asteroids
 				action = getAsteroidCollectorAction(ship.getId(), space, ship);
@@ -103,6 +114,7 @@ public class SchonAstonClient extends TeamClient {
 		
 		// Decide which target to pursue using planning
 		int decision = 0;
+		
 		// aim for a beacon
 		if (decision == 0) {
 			Beacon beacon = pickNearestBeacon(space, ship);
@@ -364,35 +376,14 @@ public class SchonAstonClient extends TeamClient {
 			PurchaseCosts purchaseCosts) {
 
 		HashMap<UUID, PurchaseTypes> purchases = new HashMap<UUID, PurchaseTypes>();
-		double BASE_BUYING_DISTANCE =600;
-		boolean bought_base = false;
 
-		if (purchaseCosts.canAfford(PurchaseTypes.BASE, resourcesAvailable)) {
+		// Buy a ship if I can afford it
+		if (purchaseCosts.canAfford(PurchaseTypes.SHIP, resourcesAvailable)) {
 			for (AbstractActionableObject actionableObject : actionableObjects) {
 				if (actionableObject instanceof Ship) {
 					Ship ship = (Ship) actionableObject;
-					Set<Base> bases = space.getBases();
-					boolean shouldBuyBase = true;
-
-					// how far away is this ship to a base of my team?
-					double maxDistance = Double.MIN_VALUE;
-					for (Base base : bases) {
-						if (base.getTeamName().equalsIgnoreCase(getTeamName())) {
-							double distance = space.findShortestDistance(ship.getPosition(), base.getPosition());
-							if (distance > maxDistance) {
-								maxDistance = distance;
-							}
-							else {
-								shouldBuyBase = false;
-							}
-						}
-					}
-
-					if (maxDistance > BASE_BUYING_DISTANCE && shouldBuyBase) {
-						purchases.put(ship.getId(), PurchaseTypes.BASE);
-						bought_base = true;
-						break;
-					}
+					purchases.put(ship.getId(), PurchaseTypes.SHIP);
+					break;
 				}
 			}		
 		} 

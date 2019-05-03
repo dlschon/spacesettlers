@@ -12,49 +12,33 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 public class FlagAction extends AbstractPlanAction {
 
 	Flag flag;
-	HashMap<UUID, AbstractObject> targets;
 	
-	public FlagAction(Toroidal2DPhysics space, Ship ship, Flag flag, HashMap<UUID, AbstractObject> targets) {
-		super(space, ship);
+	public FlagAction(Toroidal2DPhysics space, Ship ship, Planner planner, Flag flag) {
+		super(space, ship, planner);
 		this.flag = flag;
-		this.targets = targets;
 	}
 
 	@Override
 	public boolean arePreconditionsMet() {
 		
-		// Check if any opposing team flags exist
+		// Check if any opposing team flags exist and is not being carried
 		// Assume false until proven true
 		boolean flagExists = false;
 		for (Flag f : space.getFlags())
-		{
-			if (f.getTeamName() != ship.getTeamName())
+			if (f.getTeamName() != ship.getTeamName() && !f.isBeingCarried())
 				flagExists = true;
-		}
 		
 		// Check to see if anyone is already targeting a flag
-		// Assume false until proven true
-		boolean flagTargeted = false;
-		for (AbstractObject target : targets.values())
-		{
-			if (target instanceof Flag && ((Flag) target).getTeamName() != ship.getTeamName())
-				flagTargeted = true;
-		}
+		boolean flagTargeted = planner.isTargeted(flag);
 		
 		return !ship.isCarryingFlag() && flagExists && !flagTargeted;
 	}
 
 	@Override
-	public int satisfies() {
+	public int postconditions() {
 		return Planner.GOAL_ID_FLAG;
 	}
 
-	@Override
-	public double distanceToTarget() {
-		return space.findShortestDistance(ship.getPosition(), flag.getPosition());
-	}
-
-	@Override
 	public AbstractObject getTarget() {
 		return flag;
 	}

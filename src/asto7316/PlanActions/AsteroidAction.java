@@ -10,33 +10,32 @@ public class AsteroidAction extends AbstractPlanAction {
 
 	Asteroid asteroid;
 
-	public AsteroidAction(Toroidal2DPhysics space, Ship ship, Asteroid asteroid) 
+	public AsteroidAction(Toroidal2DPhysics space, Ship ship, Planner planner, Asteroid asteroid) 
 	{
-		super(space, ship);
+		super(space, ship, planner);
 		this.asteroid = asteroid;
 	}
 
 	@Override
 	public boolean arePreconditionsMet() {
-		// TODO Auto-generated method stub
+		
+		// Check if there are any mineable, untargetted asteroids
+		for (Asteroid a : space.getAsteroids())
+			if (a.isMineable() && !planner.isTargeted(a))
+				return true;
+		
+		// Didn't find one
 		return false;
 	}
 
 	@Override
-	public int satisfies() {
+	public int postconditions() {
 		return Planner.GOAL_ID_RESOURCES;
 	}
 
 	@Override
-	public double distanceToTarget() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public AbstractObject getTarget() {
-		// TODO Auto-generated method stub
-		return null;
+		return asteroid;
 	}
 
 }

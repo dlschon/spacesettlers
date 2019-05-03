@@ -4,17 +4,23 @@ import asto7316.Planner;
 import spacesettlers.objects.Ship;
 import spacesettlers.simulator.Toroidal2DPhysics;
 
+/**
+ * Subgoal for maintaining a healthy amount of energy
+ * @author dlsch
+ *
+ */
 public class EnergyGoal extends AbstractGoal {
+
+	// The point at which we should start prioritizing beacons
+	public static final int LOW_BATTERY = 2000;
 
 	public EnergyGoal(Toroidal2DPhysics space, Ship ship) {
 		super(space, ship);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public boolean isGoalMet(Ship ship, Toroidal2DPhysics space) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isGoalMet() {
+		return ship.getEnergy() > LOW_BATTERY;
 	}
 
 	@Override

@@ -10,32 +10,30 @@ public class BeaconAction extends AbstractPlanAction {
 
 	Beacon beacon;
 	
-	public BeaconAction(Toroidal2DPhysics space, Ship ship, Beacon beacon) {
-		super(space, ship);
+	public BeaconAction(Toroidal2DPhysics space, Ship ship, Planner planner, Beacon beacon) {
+		super(space, ship, planner);
 		this.beacon = beacon;
 	}
 
 	@Override
 	public boolean arePreconditionsMet() {
-		// TODO Auto-generated method stub
+		// Check if there are any untargeted beacons
+		for (Beacon b : space.getBeacons())
+			if (!planner.isTargeted(b))
+				return true;
+		
+		// Didn't find one
 		return false;
 	}
 
 	@Override
-	public int satisfies() {
+	public int postconditions() {
 		return Planner.GOAL_ID_ENERGY;
 	}
 
 	@Override
-	public double distanceToTarget() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public AbstractObject getTarget() {
-		// TODO Auto-generated method stub
-		return null;
+		return beacon;
 	}
 
 }

@@ -13,34 +13,27 @@ public class BaseAction extends AbstractPlanAction {
 
 	Base base;
 	
-	public BaseAction(Toroidal2DPhysics space, Ship ship, Base base) 
+	public BaseAction(Toroidal2DPhysics space, Ship ship, Planner planner, Base base) 
 	{
-		super(space, ship);
+		super(space, ship, planner);
 		this.base = base;
 	}
 
 	@Override
 	public boolean arePreconditionsMet() {
-		// TODO Auto-generated method stub
 		
-		return false;
+		// There's always a base so this is always possible
+		return true;
 	}
 
 	@Override
-	public int satisfies() {
+	public int postconditions() {
 		return Planner.GOAL_ID_BASE;
 	}
 
 	@Override
-	public double distanceToTarget() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public AbstractObject getTarget() {
-		// TODO Auto-generated method stub
-		return null;
+		return base;
 	}
 
 }
