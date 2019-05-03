@@ -71,7 +71,7 @@ public class Planner {
 	{
 		// Energy goal is top priority cause it lets us live
 		// If we're really close to a target then go ahead and get that first though
-		if (!goalMet(space, ship, GOAL_ID_ENERGY) && space.findShortestDistance(ship.getPosition(), target.getPosition()) > 200)
+		if (!goalMet(space, ship, GOAL_ID_ENERGY))
 			return GOAL_ID_ENERGY;
 		
 		// Next subgoal: go to base if we have something to bring back
