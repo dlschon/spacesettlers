@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import java.util.PriorityQueue;
 
 import asto7316.CustomMove;
+import asto7316.Astar.AStarSearch;
 import spacesettlers.actions.AbstractAction;
 import spacesettlers.actions.DoNothingAction;
 import spacesettlers.actions.MoveAction;

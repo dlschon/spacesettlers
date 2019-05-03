@@ -1,4 +1,4 @@
-package asto7316;
+package asto7316.Astar;
 
 import java.awt.Color;
 import java.util.ArrayList;
