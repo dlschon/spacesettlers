@@ -10,22 +10,16 @@ public class AsteroidAction extends AbstractPlanAction {
 
 	Asteroid asteroid;
 
-	public AsteroidAction(Toroidal2DPhysics space, Ship ship, Planner planner, Asteroid asteroid) 
+	public AsteroidAction(Asteroid asteroid) 
 	{
-		super(space, ship, planner);
 		this.asteroid = asteroid;
 	}
 
 	@Override
-	public boolean arePreconditionsMet() {
+	public boolean arePreconditionsMet(Toroidal2DPhysics space, Ship ship) {
 		
-		// Check if there are any mineable, untargetted asteroids
-		for (Asteroid a : space.getAsteroids())
-			if (a.isMineable() && !planner.isTargeted(a))
-				return true;
-		
-		// Didn't find one
-		return false;
+		// Check if asteroid is mineable and untargeted
+		return asteroid.isMineable() && !Planner.isTargetedByOther(asteroid, ship);
 	}
 
 	@Override

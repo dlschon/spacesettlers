@@ -13,17 +13,17 @@ public class BaseAction extends AbstractPlanAction {
 
 	Base base;
 	
-	public BaseAction(Toroidal2DPhysics space, Ship ship, Planner planner, Base base) 
+	public BaseAction(Base base) 
 	{
-		super(space, ship, planner);
+		super();
 		this.base = base;
 	}
 
 	@Override
-	public boolean arePreconditionsMet() {
+	public boolean arePreconditionsMet(Toroidal2DPhysics space, Ship ship) {
 		
-		// There's always a base so this is always possible
-		return true;
+		// this base must belong to the ship
+		return base.getTeamName() == ship.getTeamName();
 	}
 
 	@Override

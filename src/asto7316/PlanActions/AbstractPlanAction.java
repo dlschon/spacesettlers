@@ -12,12 +12,6 @@ import spacesettlers.simulator.Toroidal2DPhysics;
  */
 public abstract class AbstractPlanAction {
 	
-	// Fields
-	
-	Toroidal2DPhysics space;
-	Ship ship;
-	Planner planner;
-
 	// Methods 
 	
 	/**
@@ -25,7 +19,7 @@ public abstract class AbstractPlanAction {
 	 * That is, the game state is such that this option is possible
 	 * @return
 	 */
-	public abstract boolean arePreconditionsMet();
+	public abstract boolean arePreconditionsMet(Toroidal2DPhysics space, Ship ship);
 	
 	/**
 	 * The result of successfully completing this action
@@ -44,17 +38,14 @@ public abstract class AbstractPlanAction {
 	 * Distance to the target object, used to choose more viable actions
 	 * @return
 	 */
-	public double distanceToTarget()
+	public double distanceToTarget(Toroidal2DPhysics space, Ship ship)
 	{
 		return space.findShortestDistance(ship.getPosition(), getTarget().getPosition());
 	}
 	
 	
-	public AbstractPlanAction(Toroidal2DPhysics space, Ship ship, Planner planner) 
+	public AbstractPlanAction() 
 	{
-		this.space = space;
-		this.ship = ship;
-		this.planner = planner;
 	}
 		
 	

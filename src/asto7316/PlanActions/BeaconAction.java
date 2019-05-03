@@ -10,20 +10,14 @@ public class BeaconAction extends AbstractPlanAction {
 
 	Beacon beacon;
 	
-	public BeaconAction(Toroidal2DPhysics space, Ship ship, Planner planner, Beacon beacon) {
-		super(space, ship, planner);
+	public BeaconAction(Beacon beacon) {
 		this.beacon = beacon;
 	}
 
 	@Override
-	public boolean arePreconditionsMet() {
-		// Check if there are any untargeted beacons
-		for (Beacon b : space.getBeacons())
-			if (!planner.isTargeted(b))
-				return true;
-		
-		// Didn't find one
-		return false;
+	public boolean arePreconditionsMet(Toroidal2DPhysics space, Ship ship) {
+		// Check if beacon is untargeted
+		return !Planner.isTargetedByOther(beacon, ship);
 	}
 
 	@Override

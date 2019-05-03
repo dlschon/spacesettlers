@@ -12,13 +12,13 @@ import spacesettlers.simulator.Toroidal2DPhysics;
  */
 public class BaseGoal extends AbstractGoal {
 
-	public BaseGoal(Toroidal2DPhysics space, Ship ship) {
-		super(space, ship);
+	public BaseGoal() {
+		super();
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public boolean isGoalMet() {
+	public boolean isGoalMet(Toroidal2DPhysics space, Ship ship) {
 		
 		// Check all our bases for close proximity
 		for (Base b : space.getBases())

@@ -13,12 +13,11 @@ public class ResourcesGoal extends AbstractGoal {
 
 	public static final int ADEQUATE_RESOURCES = 2500;
 
-	public ResourcesGoal(Toroidal2DPhysics space, Ship ship) {
-		super(space, ship);
+	public ResourcesGoal() {
 	}
 
 	@Override
-	public boolean isGoalMet() {
+	public boolean isGoalMet(Toroidal2DPhysics space, Ship ship) {
 		return ship.getResources().getTotal() >= ADEQUATE_RESOURCES;
 	}
 

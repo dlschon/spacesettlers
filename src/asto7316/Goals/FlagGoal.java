@@ -12,20 +12,14 @@ import spacesettlers.simulator.Toroidal2DPhysics;
  */
 public class FlagGoal extends AbstractGoal {
 
-	public FlagGoal(Toroidal2DPhysics space, Ship ship) {
-		super(space, ship);
+	public FlagGoal() {
 	}
 
 	@Override
-	public boolean isGoalMet() {
+	public boolean isGoalMet(Toroidal2DPhysics space, Ship ship) {
 		
-		// Check if someone is carrying the opponent's flag
-		for (Flag f : space.getFlags())
-			if (f.getTeamName() != ship.getTeamName() && f.isBeingCarried())
-				return true;
-
-		// They're not
-		return false;
+		// Check if the ship is carrying flag
+		return ship.isCarryingFlag();
 	}
 
 	@Override

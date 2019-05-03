@@ -14,12 +14,11 @@ public class EnergyGoal extends AbstractGoal {
 	// The point at which we should start prioritizing beacons
 	public static final int LOW_BATTERY = 2000;
 
-	public EnergyGoal(Toroidal2DPhysics space, Ship ship) {
-		super(space, ship);
+	public EnergyGoal() {
 	}
 
 	@Override
-	public boolean isGoalMet() {
+	public boolean isGoalMet(Toroidal2DPhysics space, Ship ship) {
 		return ship.getEnergy() > LOW_BATTERY;
 	}
 

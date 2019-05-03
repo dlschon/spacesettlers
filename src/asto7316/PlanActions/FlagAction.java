@@ -13,25 +13,23 @@ public class FlagAction extends AbstractPlanAction {
 
 	Flag flag;
 	
-	public FlagAction(Toroidal2DPhysics space, Ship ship, Planner planner, Flag flag) {
-		super(space, ship, planner);
+	public FlagAction(Flag flag) {
 		this.flag = flag;
 	}
 
 	@Override
-	public boolean arePreconditionsMet() {
+	public boolean arePreconditionsMet(Toroidal2DPhysics space, Ship ship) {
 		
-		// Check if any opposing team flags exist and is not being carried
-		// Assume false until proven true
-		boolean flagExists = false;
-		for (Flag f : space.getFlags())
-			if (f.getTeamName() != ship.getTeamName() && !f.isBeingCarried())
-				flagExists = true;
+		// Check if flag is being carried
+		boolean flagCarried = flag.isBeingCarried();
 		
-		// Check to see if anyone is already targeting a flag
-		boolean flagTargeted = planner.isTargeted(flag);
+		// Check if the flag is mine
+		boolean myFlag = flag.getTeamName() == ship.getTeamName();
+
+		// Check to see if anyone is already targeting the flag
+		boolean flagTargeted = Planner.isTargetedByOther(flag, ship);
 		
-		return !ship.isCarryingFlag() && flagExists && !flagTargeted;
+		return !ship.isCarryingFlag() && !flagCarried && !myFlag && !flagTargeted;
 	}
 
 	@Override

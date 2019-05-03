@@ -48,15 +48,11 @@ import spacesettlers.utilities.Vector2D;
  *
  */
 public class SchonAstonClient extends TeamClient {
-	HashMap <UUID, Ship> asteroidToShipMap;
-	HashMap <UUID, Boolean> aimingForBase;
-	HashMap <UUID, Boolean> goingForCore;
-	HashMap <UUID, Boolean> justHitBase;
 	HashSet<SpacewarGraphics> graphics;
 	boolean fired = false;
 	HashMap<UUID, Set<SpacewarGraphics>> astargraphics;
-	HashMap<UUID, AStarSearch> searches;
-	HashMap<UUID, Planner> planners;
+	HashMap<UUID, AStarSearch> searches = new HashMap<UUID, AStarSearch>();
+	HashMap<UUID, Planner> planners = new HashMap<UUID, Planner>();
 	
 	double weaponsProbability = 1;
 	
@@ -77,17 +73,8 @@ public class SchonAstonClient extends TeamClient {
 
 				AbstractAction action;
 
-				// Create the Planner if it doesn't yet exist
-				if (planners.containsKey(ship.getId()))
-				{
-					planner = new Planner(space, ship);
-					planners.put(ship.getId(), planner);
-				}
-				else
-					planner = planners.get(ship.getId());
-
 				// get the asteroids
-				action = getAsteroidCollectorAction(ship.getId(), space, ship);
+				action = getAsteroidCollectorAction(space, ship);
 				actions.put(ship.getId(), action);
 				
 				
@@ -105,81 +92,45 @@ public class SchonAstonClient extends TeamClient {
 	 * @param ship
 	 * @return
 	 */
-	private AbstractAction getAsteroidCollectorAction (UUID shipID, Toroidal2DPhysics space,
+	private AbstractAction getAsteroidCollectorAction (Toroidal2DPhysics space,
 			Ship ship) {
 		AbstractAction current = ship.getCurrentAction();
 		Position currentPosition = ship.getPosition();
 		AbstractAction newAction = null;
 		AbstractObject target = null;
 		
-		// Decide which target to pursue using planning
-		int decision = 0;
+		Planner planner;
+		if (!planners.containsKey(ship.getId()))
+		{
+			// Create the Planner if it doesn't yet exist
+			planner = new Planner();
+			planners.put(ship.getId(), planner);
+		}
+		else
+			// Get existing planner for ship
+			planner = planners.get(ship.getId());
+
+		// Get target from planner
+		target = planner.plan(space, ship);
 		
-		// aim for a beacon
-		if (decision == 0) {
-			Beacon beacon = pickNearestBeacon(space, ship);
-			// if there is no beacon, then just skip a turn
-			if (beacon == null) {
-				newAction = new DoNothingAction();
-				return newAction;
-			} else {
-				target = beacon;
-			}
-			aimingForBase.put(ship.getId(), false);
-			goingForCore.put(ship.getId(), false);
-		}
-
-		// Take resources back to base
-		else if (decision == 1) {
-			Base base = findNearestBase(space, ship);
-			target = base;
-			aimingForBase.put(ship.getId(), true);
-			goingForCore.put(ship.getId(), false);
-		}
-
-		// otherwise aim for the asteroid
-		else if (decision == 2) {
-			aimingForBase.put(ship.getId(), false);
-			goingForCore.put(ship.getId(), false);
-			justHitBase.put(ship.getId(), false);			
-			Asteroid asteroid = pickHighestValueNearestFreeAsteroid(space, ship);
-
-			if (asteroid == null) {
-				// there is no asteroid available so collect a core
-				AiCore nearbyCore = pickNearestCore(space, ship, 200);
-				if (nearbyCore != null)
-				{
-					Position newGoal = nearbyCore.getPosition();
-					target = nearbyCore;
-					aimingForBase.put(ship.getId(), false);
-					goingForCore.put(ship.getId(), true);
-				}
-				else
-				{
-					// No available cores so do nothing
-					newAction = new DoNothingAction();
-					return newAction;
-				}
-			} else {
-				asteroidToShipMap.put(asteroid.getId(), ship);
-				
-				target = asteroid;
-				
-			}
-			
-			
-		} else {
-			return ship.getCurrentAction();
-		}
+		if (target == null)
+			return new DoNothingAction();
 		
 		// Create new search object if it doesn't exist yet
-		if (!searches.containsKey(shipID))
-			searches.put(shipID, new AStarSearch());
-		AStarSearch.SearchResult results = searches.get(shipID).search(space, ship, target);
+		AStarSearch search;
+		if (!searches.containsKey(ship.getId()))
+		{
+			search = new AStarSearch();
+			searches.put(ship.getId(), new AStarSearch());
+		}
+		else
+			search = searches.get(ship.getId());
+
+		AStarSearch.SearchResult results = search.search(space, ship, target);
 		
 		if (results != null)
 		{
-			astargraphics.put(shipID, results.graphics);
+			astargraphics.put(ship.getId(), results.graphics);
 			
 			if (results.nextTarget != null)
 				newAction = new CustomMove(space, currentPosition, new Position(results.targetPos), target, 
@@ -292,44 +243,13 @@ public class SchonAstonClient extends TeamClient {
 
 	@Override
 	public void getMovementEnd(Toroidal2DPhysics space, Set<AbstractActionableObject> actionableObjects) {
-		ArrayList<Asteroid> finishedAsteroids = new ArrayList<Asteroid>();
-
-		for (UUID asteroidId : asteroidToShipMap.keySet()) {
-			Asteroid asteroid = (Asteroid) space.getObjectById(asteroidId);
-			if (asteroid == null || !asteroid.isAlive() || asteroid.isMoveable()) {
-				finishedAsteroids.add(asteroid);
-			}
-		}
-
-		for (Asteroid asteroid : finishedAsteroids) {
-			if (asteroidToShipMap != null && asteroid != null && asteroidToShipMap.containsKey(asteroid.getId()))
-			asteroidToShipMap.remove(asteroid.getId());
-		}
-		
-		// check to see who bounced off bases
-		for (UUID shipId : aimingForBase.keySet()) {
-			if (aimingForBase.get(shipId)) {
-				Ship ship = (Ship) space.getObjectById(shipId);
-				if (ship.getResources().getTotal() == 0 ) {
-					aimingForBase.put(shipId, false);
-					justHitBase.put(shipId, true);
-					goingForCore.put(ship.getId(), false);
-				}
-			}
-		}
-		
 
 
 	}
 
 	@Override
 	public void initialize(Toroidal2DPhysics space) {
-		asteroidToShipMap = new HashMap<UUID, Ship>();
-		aimingForBase = new HashMap<UUID, Boolean>();
-		goingForCore = new HashMap<UUID, Boolean>();
-		justHitBase = new HashMap<UUID, Boolean>();
 		astargraphics = new HashMap<UUID, Set<SpacewarGraphics>>();
-		searches = new HashMap<UUID, AStarSearch>();
 	}
 
 	@Override
@@ -376,14 +296,35 @@ public class SchonAstonClient extends TeamClient {
 			PurchaseCosts purchaseCosts) {
 
 		HashMap<UUID, PurchaseTypes> purchases = new HashMap<UUID, PurchaseTypes>();
+		double BASE_BUYING_DISTANCE =600;
+		boolean bought_base = false;
 
-		// Buy a ship if I can afford it
-		if (purchaseCosts.canAfford(PurchaseTypes.SHIP, resourcesAvailable)) {
+		if (purchaseCosts.canAfford(PurchaseTypes.BASE, resourcesAvailable)) {
 			for (AbstractActionableObject actionableObject : actionableObjects) {
 				if (actionableObject instanceof Ship) {
 					Ship ship = (Ship) actionableObject;
-					purchases.put(ship.getId(), PurchaseTypes.SHIP);
-					break;
+					Set<Base> bases = space.getBases();
+					boolean shouldBuyBase = true;
+
+					// how far away is this ship to a base of my team?
+					double maxDistance = Double.MIN_VALUE;
+					for (Base base : bases) {
+						if (base.getTeamName().equalsIgnoreCase(getTeamName())) {
+							double distance = space.findShortestDistance(ship.getPosition(), base.getPosition());
+							if (distance > maxDistance) {
+								maxDistance = distance;
+							}
+							else {
+								shouldBuyBase = false;
+							}
+						}
+					}
+
+					if (maxDistance > BASE_BUYING_DISTANCE && shouldBuyBase) {
+						purchases.put(ship.getId(), PurchaseTypes.BASE);
+						bought_base = true;
+						break;
+					}
 				}
 			}		
 		} 
@@ -405,10 +346,6 @@ public class SchonAstonClient extends TeamClient {
 		for (AbstractActionableObject actionableObject : actionableObjects){
 			SpaceSettlersPowerupEnum powerup = SpaceSettlersPowerupEnum.values()[random.nextInt(SpaceSettlersPowerupEnum.values().length)];
 			
-			Boolean gettingCore = false;
-			if (goingForCore.containsKey(actionableObject.getId())) {
-				gettingCore = goingForCore.get(actionableObject.getId());
-			}
 		}
 		
 		return powerUps;
